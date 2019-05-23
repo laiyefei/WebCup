@@ -10,4 +10,8 @@
 package cup
 
 type Aop interface {
+	//do before context logic run
+	before(ctx Ctx)
+	//do after context logic run
+	after(ctx Ctx)
 }

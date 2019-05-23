@@ -15,7 +15,7 @@ import (
 )
 
 type Ctx struct {
-	RW      http.ResponseWriter
+	Res      http.ResponseWriter
 	Req     *http.Request
 	session session.Session
 }

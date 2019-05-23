@@ -8,3 +8,7 @@
  * @OtherWebSite : http://bakerstreet.club;http://sherlock.help;
  */
 package disp
+
+func init() {
+
+}
