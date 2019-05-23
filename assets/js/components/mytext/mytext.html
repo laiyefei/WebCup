@@ -1,0 +1,14 @@
+<div>
+    <p v-bind:class="columnstyle">
+        <label class="label">
+            <span class="text-mark" v-if="required">*</span>
+            {{fieldname}}：
+        </label>
+        <input v-if="disabled" v-bind:required="required" v-bind:type="type" v-bind:name="targetfield"
+               v-model="fieldvalue"
+               class="text" autocomplete="off">
+        <label v-else>
+            {{ fieldvalue }}
+        </label>
+    </p>
+</div>

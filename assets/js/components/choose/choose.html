@@ -1,0 +1,16 @@
+<div>
+    <p >
+        <label class="label">
+            <span class="text-mark" v-if="require">*</span>
+            {{fieldname}}：
+        </label>
+        <span class="text-line-outer" v-on:click="doChoose">
+            <input type="text" v-bind:name="fieldcode" v-model="savecodes" v-bind:value="savecodes" class="text-line">
+            <span class="text-line-setting">
+                <span class="icon-grid icon-grid-setting" title="选择"></span>
+                <span class="text-line-content" v-bind:title="savenames">{{buttonshow}}
+                    【<span style="font-weight:bold;">{{savenames || "未选择"}}</span>】</span>
+            </span>
+        </span>
+    </p>
+</div>

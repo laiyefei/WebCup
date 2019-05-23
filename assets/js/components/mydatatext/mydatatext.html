@@ -1,0 +1,14 @@
+<p v-bind:class="column_number">
+    <label class="label">
+        <span class="text-mark" v-if="require">*</span>
+        {{fieldname}}：
+    </label>
+    <span class="text-line-outer">
+        <div class="l-text-wrapper">
+            <div class="l-text l-text-date">
+                <input edittype="date" type="text" name="effectiveTimeHigh" groupname="timeGroup" compare="big"
+                       comparemsg="有效结束时间不能小于有效开始时间!" class="text l-text-field" ligeruiid="DateEditor1001">
+            </div>
+        </div>
+    </span>
+</p>

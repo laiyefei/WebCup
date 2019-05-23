@@ -1,0 +1,11 @@
+<div>
+    <p v-bind:class="colspan">
+        <label class="label">{{fieldname}}</label>
+        <a class="btn-switch-outer" v-bind:id="id">
+        <span v-bind:class="show" v-on:click="doChange">
+            <b class="btn-switch-inner"></b>
+        </span>
+        </a>
+        <input type="hidden" v-bind:name="targetfield" v-bind:value="savecode"/>
+    </p>
+</div>

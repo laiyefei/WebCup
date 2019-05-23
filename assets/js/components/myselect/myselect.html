@@ -1,0 +1,15 @@
+<div v-bind:class="colspan">
+    <span class="text-mark" v-if="require">*</span>
+    <label class="label">{{fieldname}}：</label>
+    <span class="simulate-select" style="width: 190px;" v-on:click="doChoose">
+        <span class="text" style="width: 170px;">{{title}}</span>
+        <i class="icon-grid icon-grid-fold-gray" style="position: absolute; top: 1px; left: 170px;"></i>
+        <!-- <select v-bind:name="fieldcode" style="display: none;">
+                         <option v-for="param in $data">{{param.name}}</option>
+                     </select>-->
+        <input v-bind:name="targetfield" v-model="fieldvalue" type="hidden">
+        <ul class="simulate-select-lists" ref="lists" style="width: 189px; display: none;">
+            <li class="simulate-select-list" v-for="param in datas" @click="getValue(param)" v-bind:value="param.code">{{param.text}}</li>
+        </ul>
+    </span>
+</div>
