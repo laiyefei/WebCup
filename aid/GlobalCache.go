@@ -32,8 +32,8 @@ func GetInstance() *globalCached {
 }
 
 func (this *globalCached) Get(key interface{}) interface{} {
-	this.mu.Lock()
 	defer this.mu.Unlock()
+	this.mu.Lock()
 	if nil == this.cache {
 		this.cache = make(map[interface{}]interface{})
 	}
@@ -44,8 +44,8 @@ func (this *globalCached) Set(key, val interface{}) {
 	if nil == this.cache {
 		return
 	}
-	this.mu.Lock()
 	defer this.mu.Unlock()
+	this.mu.Lock()
 	this.cache[key] = val
 }
 
@@ -53,8 +53,8 @@ func (this *globalCached) Delete(key interface{}) {
 	if nil == this.cache {
 		return
 	}
-	this.mu.Lock()
 	defer this.mu.Lock()
+	this.mu.Lock()
 	delete(this.cache, key)
 }
 
@@ -62,8 +62,8 @@ func (this *globalCached) IsExist(key interface{}) bool {
 	if nil == this.cache {
 		return false
 	}
-	this.mu.Lock()
 	defer this.mu.Unlock()
+	this.mu.Lock()
 	for k, _ := range this.cache {
 		if key == k {
 			return true
@@ -76,7 +76,7 @@ func (this *globalCached) Release() {
 	if nil == this.cache {
 		return
 	}
-	this.mu.Lock()
 	defer this.mu.Unlock()
+	this.mu.Lock()
 	this.cache = nil
 }

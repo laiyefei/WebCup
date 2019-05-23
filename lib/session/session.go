@@ -25,8 +25,8 @@ type Session interface {
 	Set(key string, val interface{}) error
 	SetString(key string, val string) error
 	IsExist(key string) bool
-	Clean(key string)
-	CleanAll()
+	Clean(key string) error
+	CleanAll() error
 }
 
 type SessionStore interface {
@@ -35,9 +35,9 @@ type SessionStore interface {
 	Save(sid string, key string, val interface{}) error
 	SaveString(sid string, key string, val string) error
 	IsExist(sid string, key string) bool
-	Clean(sid string, key string)
-	CleanSession(sid string)
-	CleanAll()
+	Clean(sid string, key string) error
+	CleanSession(sid string) error
+	CleanAll() error
 }
 
 type SimpleSession struct {
@@ -96,6 +96,35 @@ func NewSimpleSession(res http.ResponseWriter, req *http.Request, sessionStore S
 func (this *SimpleSession) Id() string {
 	return this.id
 }
+
+func (this *SimpleSession) Get(key string, val interface{}) error{
+	return this.store.Gain(this.id, key, val)
+}
+
+func (this *SimpleSession) GetString(key string) (string, error){
+	return this.store.GainString(this.id, key)
+}
+
+func (this *SimpleSession) Set(key string, val interface{}) error{
+	return this.store.Save(this.id, key, val)
+}
+
+func (this *SimpleSession) SetString(key string, val string) error{
+	return this.store.SaveString(this.id, key, val)
+}
+
+func (this *SimpleSession) IsExist(key string) bool{
+	return this.store.IsExist(this.id, key)
+}
+
+func (this *SimpleSession) Clean(key string) error{
+	return this.store.Clean(this.id, key)
+}
+
+func (this *SimpleSession) CleanAll() error{
+	return this.store.CleanAll()
+}
+
 func (this *SimpleSession) Flush() {
 	coki := NewCookie(SESSION_SIGN, this.id)
 	http.SetCookie(this.res, coki)

@@ -9,9 +9,14 @@
  */
 package cup
 
+type Boost interface {
+
+}
+
 type Aop interface {
 	//do before context logic run
-	before(ctx Ctx)
+	Before(ctx ctx, boost ...Boost) error
 	//do after context logic run
-	after(ctx Ctx)
+	After(ctx ctx, boost ...Boost) error
 }
+
