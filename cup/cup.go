@@ -21,23 +21,25 @@ import (
 )
 
 type allocate struct {
-	aop Aop
+	aop          Aop
+	parses       []ArgParse
 	sessionStore session.SessionStore
 }
 
 type deploy struct {
-	addr string
-	resource struct{
-		index string
-		dirs []string
-		exts []string
+	addr     string
+	resource struct {
+		index      string
+		staticDirs []string
+		viewDir    string
+		exts       []string
 	}
 }
 
 type cup struct {
 	allocate allocate
 	mux      *http.ServeMux
-	deploy deploy
+	deploy   deploy
 }
 
 func NewCup() *cup {
@@ -63,13 +65,15 @@ func (this *cup) Register(controller interface{}) *cup {
 		}
 
 		route := buildPath(fnName)
+		method := _value.Method(i)
+		methodType := method.Type()
 
 		//handle route
 		this.mux.HandleFunc(route, func(res http.ResponseWriter, req *http.Request) {
 
 			//get session first
-			context := NewCtx(res,req, session.NewSimpleSession(res, req, this.allocate.sessionStore))
-			if nil != this.allocate.aop{
+			context := NewCtx(res, req, session.NewSimpleSession(res, req, this.allocate.sessionStore))
+			if nil != this.allocate.aop {
 				//aop do here
 				defer func() {
 					err := this.allocate.aop.After(context)
@@ -86,7 +90,19 @@ func (this *cup) Register(controller interface{}) *cup {
 			}
 
 			//then do
-			clearURL := path2.Clean(strings.Trim(req.URL.Path, "/"))
+			//clearURL := path2.Clean(strings.Trim(req.URL.Path, "/"))
+			args := []reflect.Value{}
+			for i := 0; i < methodType.NumIn(); i++ {
+				argType := methodType.In(i)
+				for _, parser := range this.allocate.parses {
+					if argValue, ok := parser.Parse(&context, argType); ok {
+						args = append(args, argValue)
+						break
+					}
+				}
+			}
+
+			callRet := method.Call(args)
 
 		})
 
@@ -96,13 +112,12 @@ func (this *cup) Register(controller interface{}) *cup {
 	return this
 }
 
-
-func (this *cup) resourcePour(){
+func (this *cup) resourcePour() {
 	this.mux.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 
 		//get session first
-		context := NewCtx(res,req, session.NewSimpleSession(res, req, this.allocate.sessionStore))
-		if nil != this.allocate.aop{
+		context := NewCtx(res, req, session.NewSimpleSession(res, req, this.allocate.sessionStore))
+		if nil != this.allocate.aop {
 			//aop do here
 			defer func() {
 				err := this.allocate.aop.After(context)
@@ -128,15 +143,15 @@ func (this *cup) resourcePour(){
 
 		admit := 0
 		theDir := ""
-		for _, dir := range this.deploy.resource.dirs{
+		for _, dir := range this.deploy.resource.dirs {
 			dir = path2.Clean(dir)
-			if strings.HasPrefix(clearURL, dir){
+			if strings.HasPrefix(clearURL, dir) {
 				theDir = dir
 				admit++
 				break
 			}
 		}
-		if 0 == len(theDir) || admit <= 0{
+		if 0 == len(theDir) || admit <= 0 {
 			io.WriteString(res, "sorry, not allow query this resource ...")
 			return
 		}
@@ -157,7 +172,6 @@ func (this *cup) resourcePour(){
 		http.ServeFile(res, req, theDir)
 	})
 }
-
 
 //private adorn
 func buildPath(fnName string) string {
