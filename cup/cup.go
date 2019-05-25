@@ -21,7 +21,7 @@ import (
 )
 
 type allocate struct {
-	aop          Aop
+	aops         []Aop
 	parses       []ArgParse
 	dress        RetDress
 	sessionStore session.SessionStore
@@ -47,11 +47,11 @@ func NewCup() *cup {
 	newCup := &cup{
 		mux: http.NewServeMux(),
 		allocate: struct {
-			aop          Aop
+			aops         []Aop
 			parses       []ArgParse
 			dress        RetDress
 			sessionStore session.SessionStore
-		}{aop: {}, parses: []ArgParse{}, dress: &RetsJson{}, sessionStore:},
+		}{aops: {}, parses: []ArgParse{}, dress: &RetsJson{}, sessionStore:},
 	}
 
 	return newCup
@@ -93,15 +93,21 @@ func (this *cup) Register(controller interface{}) *cup {
 		this.mux.HandleFunc(route, func(res http.ResponseWriter, req *http.Request) {
 			//get session first
 			context := NewCtx(res, req, session.NewSimpleSession(res, req, this.allocate.sessionStore))
-			if nil != this.allocate.aop {
+			if nil != this.allocate.aops && 0 < len(this.allocate.aops) {
 				//aop do here
 				defer func() {
-					ok := this.allocate.aop.After(context)
+					ok := true
+					for _, itemAop := range this.allocate.aops {
+						ok = itemAop.After(context) && ok
+					}
 					if !ok {
 						return
 					}
 				}()
-				ok := this.allocate.aop.Before(context)
+				ok := true
+				for _, itemAop := range this.allocate.aops {
+					ok = itemAop.After(context) && ok
+				}
 				if !ok {
 					return
 				}
@@ -149,15 +155,21 @@ func (this *cup) resourcePour() {
 	this.mux.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		//get session first
 		context := NewCtx(res, req, session.NewSimpleSession(res, req, this.allocate.sessionStore))
-		if nil != this.allocate.aop {
+		if nil != this.allocate.aops && 0 < len(this.allocate.aops) {
 			//aop do here
 			defer func() {
-				ok := this.allocate.aop.After(context)
+				ok := true
+				for _, itemAop := range this.allocate.aops {
+					ok = itemAop.After(context) && ok
+				}
 				if !ok {
 					return
 				}
 			}()
-			ok := this.allocate.aop.Before(context)
+			ok := true
+			for _, itemAop := range this.allocate.aops {
+				ok = itemAop.After(context) && ok
+			}
 			if !ok {
 				return
 			}
