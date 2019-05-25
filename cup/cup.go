@@ -54,10 +54,10 @@ func NewCup() *cup {
 			sessionStore session.SessionStore
 		}{aops: []Aop{&DefaultAop{
 			filter: struct {
-				passURL      []string
-				startTime    time.Time
-				endTime      time.Time
-				detaNanoTime int64
+				passURL     []string
+				startTime   time.Time
+				endTime     time.Time
+				delNanoTime int64
 			}{
 				[]string{
 					"/view/login.html",
@@ -93,6 +93,28 @@ func NewCup() *cup {
 		}}},
 	}
 	return newCup
+}
+
+//dynamic
+func (this *cup) Run(addr ...string) {
+	defer func() {
+		//final run here
+		if exception := recover(); nil != exception {
+			fmt.Println("exception => ", exception)
+		}
+	}()
+	if nil == this.mux {
+		panic("sorry, the mux init error.")
+	}
+	if 0 < len(addr) {
+		for _, v := range addr {
+			fmt.Println("the web cup server is run =>: " + v)
+			http.ListenAndServe(v, this.mux)
+		}
+	} else {
+		fmt.Println("the web cup server is run =>: " + this.deploy.addr)
+		http.ListenAndServe(this.deploy.addr, this.mux)
+	}
 }
 
 //standard

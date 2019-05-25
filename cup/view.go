@@ -116,10 +116,10 @@ func (this *view) GetTemp(fullName string) (temp *template.Template, err error) 
 		temp, err = template.New(fullName).Delims(this.deploy.delims[0], this.deploy.delims[1]).Parse(tagContent)
 		if nil != err {
 			fmt.Println(err)
-			return
+			return temp, err
 		}
 		this.cache[filePath] = temp
-		return
+		return temp, nil
 	}
 }
 

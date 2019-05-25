@@ -9,6 +9,10 @@
  */
 package main
 
+import "web-cup/cup"
+
 func main() {
 
+	//run this framework here
+	cup.NewCup().Run()
 }

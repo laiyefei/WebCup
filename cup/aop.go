@@ -26,17 +26,17 @@ type Aop interface {
 
 type DefaultAop struct {
 	filter struct {
-		passURL      []string
-		startTime    time.Time
-		endTime      time.Time
-		detaNanoTime int64
+		passURL     []string
+		startTime   time.Time
+		endTime     time.Time
+		delNanoTime int64
 	}
 }
 
 func (this *DefaultAop) Before(context ctx) (ok bool) {
 	defer func() {
 		this.filter.endTime = time.Now()
-		this.filter.detaNanoTime = this.filter.endTime.UnixNano() - this.filter.startTime.UnixNano()
+		this.filter.delNanoTime = this.filter.endTime.UnixNano() - this.filter.startTime.UnixNano()
 		if exception := recover(); nil != exception {
 			fmt.Println(exception)
 			ok = false
@@ -54,7 +54,7 @@ func (this *DefaultAop) Before(context ctx) (ok bool) {
 func (this *DefaultAop) After(context ctx) (ok bool) {
 	defer func() {
 		this.filter.endTime = time.Now()
-		this.filter.detaNanoTime = this.filter.endTime.UnixNano() - this.filter.startTime.UnixNano()
+		this.filter.delNanoTime = this.filter.endTime.UnixNano() - this.filter.startTime.UnixNano()
 		if exception := recover(); nil != exception {
 			fmt.Println(exception)
 			ok = false
