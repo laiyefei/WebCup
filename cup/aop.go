@@ -10,13 +10,22 @@
 package cup
 
 type Boost interface {
-
 }
 
 type Aop interface {
 	//do before context logic run
-	Before(ctx ctx, boost ...Boost) error
+	Before(ctx ctx) bool
 	//do after context logic run
-	After(ctx ctx, boost ...Boost) error
+	After(ctx ctx) bool
 }
 
+type DefaultAop struct {
+}
+
+func (this *DefaultAop) Before(context ctx) bool {
+
+}
+
+func (this *DefaultAop) After(context ctx) bool {
+	
+}

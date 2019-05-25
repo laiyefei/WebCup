@@ -20,24 +20,24 @@ import (
 
 type Session interface {
 	Id() string
-	Get(key string, val interface{}) error
-	GetString(key string) (string, error)
-	Set(key string, val interface{}) error
-	SetString(key string, val string) error
+	Get(key string) (interface{}, bool)
+	GetString(key string) (string, bool)
+	Set(key string, val interface{}) bool
+	SetString(key string, val string) bool
 	IsExist(key string) bool
-	Clean(key string) error
-	CleanAll() error
+	Clean(key string)
+	CleanAll()
 }
 
 type SessionStore interface {
-	Gain(sid string, key string, val interface{}) error
-	GainString(sid string, key string) (string, error)
-	Save(sid string, key string, val interface{}) error
-	SaveString(sid string, key string, val string) error
+	Gain(sid string, key string) (interface{}, bool)
+	GainString(sid string, key string) (string, bool)
+	Save(sid string, key string, val interface{}) bool
+	SaveString(sid string, key string, val string) bool
 	IsExist(sid string, key string) bool
-	Clean(sid string, key string) error
-	CleanSession(sid string) error
-	CleanAll() error
+	Clean(sid string, key string)
+	CleanSession(sid string)
+	CleanAll()
 }
 
 type SimpleSession struct {
@@ -97,32 +97,32 @@ func (this *SimpleSession) Id() string {
 	return this.id
 }
 
-func (this *SimpleSession) Get(key string, val interface{}) error{
-	return this.store.Gain(this.id, key, val)
+func (this *SimpleSession) Get(key string) (interface{}, bool) {
+	return this.store.Gain(this.id, key)
 }
 
-func (this *SimpleSession) GetString(key string) (string, error){
+func (this *SimpleSession) GetString(key string) (string, bool) {
 	return this.store.GainString(this.id, key)
 }
 
-func (this *SimpleSession) Set(key string, val interface{}) error{
+func (this *SimpleSession) Set(key string, val interface{}) bool {
 	return this.store.Save(this.id, key, val)
 }
 
-func (this *SimpleSession) SetString(key string, val string) error{
+func (this *SimpleSession) SetString(key string, val string) bool {
 	return this.store.SaveString(this.id, key, val)
 }
 
-func (this *SimpleSession) IsExist(key string) bool{
+func (this *SimpleSession) IsExist(key string) bool {
 	return this.store.IsExist(this.id, key)
 }
 
-func (this *SimpleSession) Clean(key string) error{
-	return this.store.Clean(this.id, key)
+func (this *SimpleSession) Clean(key string){
+	this.store.Clean(this.id, key)
 }
 
-func (this *SimpleSession) CleanAll() error{
-	return this.store.CleanAll()
+func (this *SimpleSession) CleanAll(){
+	this.store.CleanAll()
 }
 
 func (this *SimpleSession) Flush() {

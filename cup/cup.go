@@ -23,6 +23,7 @@ import (
 type allocate struct {
 	aop          Aop
 	parses       []ArgParse
+	dress        RetDress
 	sessionStore session.SessionStore
 }
 
@@ -43,52 +44,68 @@ type cup struct {
 }
 
 func NewCup() *cup {
+	newCup := &cup{
+		mux: http.NewServeMux(),
+		allocate: struct {
+			aop          Aop
+			parses       []ArgParse
+			dress        RetDress
+			sessionStore session.SessionStore
+		}{aop: {}, parses: []ArgParse{}, dress: &RetsJson{}, sessionStore:},
+	}
 
+	return newCup
+}
+
+//standard
+func (this *cup) AddParser(parser ArgParse) *cup {
+	this.allocate.parses = append(this.allocate.parses, parser)
+	return this
+}
+func (this *cup) SetRetDress(dresser RetDress) *cup {
+	this.allocate.dress = dresser
+	return this
 }
 
 func (this *cup) Register(controller interface{}) *cup {
-
+	//check
 	if nil == this.mux {
 		this.mux = http.NewServeMux()
 	}
-
 	_type := reflect.TypeOf(controller).Elem()
 	_value := reflect.ValueOf(controller).Elem()
-
+	theView, err := NewView(this.deploy.resource.viewDir)
+	if nil != err {
+		fmt.Println("NewView Error:", err)
+	}
+	//default session store
 	//auto register route with has func
 	for i := 0; i < _type.NumMethod(); i++ {
-
 		fnName := _type.Method(i).Name
 		//just register public func
 		if !('A' <= fnName[0] && fnName[0] <= 'Z') {
 			continue
 		}
-
 		route := buildPath(fnName)
 		method := _value.Method(i)
 		methodType := method.Type()
-
 		//handle route
 		this.mux.HandleFunc(route, func(res http.ResponseWriter, req *http.Request) {
-
 			//get session first
 			context := NewCtx(res, req, session.NewSimpleSession(res, req, this.allocate.sessionStore))
 			if nil != this.allocate.aop {
 				//aop do here
 				defer func() {
-					err := this.allocate.aop.After(context)
-					if nil != err {
-						fmt.Println(err)
+					ok := this.allocate.aop.After(context)
+					if !ok {
 						return
 					}
 				}()
-				err := this.allocate.aop.Before(context)
-				if nil != err {
-					fmt.Println(err)
+				ok := this.allocate.aop.Before(context)
+				if !ok {
 					return
 				}
 			}
-
 			//then do
 			//clearURL := path2.Clean(strings.Trim(req.URL.Path, "/"))
 			args := []reflect.Value{}
@@ -101,49 +118,59 @@ func (this *cup) Register(controller interface{}) *cup {
 					}
 				}
 			}
-
-			callRet := method.Call(args)
-
+			callReturn := method.Call(args)
+			//if have back info
+			if 0 < len(callReturn) {
+				if 1 < len(callReturn) {
+					fmt.Println("the server [" + route + "] is error, the return param must just one for request.")
+					res.Write([]byte("sorry, the server [" + route + "] is error"))
+					return
+				} else {
+					if temp, err := theView.GetDefaultTemp(route); nil != err {
+						if jsonAfter, err := this.allocate.dress.Sew(callReturn[0].Interface()); nil == err {
+							res.Write(jsonAfter)
+						}
+					} else {
+						temp.Execute(res, callReturn[0].Interface())
+					}
+				}
+			} else {
+				if reader, err := theView.GetHtml(route); nil == err {
+					io.Copy(res, reader)
+				}
+			}
 		})
-
 		fmt.Println("Register =>= " + route)
 	}
-
 	return this
 }
 
 func (this *cup) resourcePour() {
 	this.mux.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
-
 		//get session first
 		context := NewCtx(res, req, session.NewSimpleSession(res, req, this.allocate.sessionStore))
 		if nil != this.allocate.aop {
 			//aop do here
 			defer func() {
-				err := this.allocate.aop.After(context)
-				if nil != err {
-					fmt.Println(err)
+				ok := this.allocate.aop.After(context)
+				if !ok {
 					return
 				}
 			}()
-			err := this.allocate.aop.Before(context)
-			if nil != err {
-				fmt.Println(err)
+			ok := this.allocate.aop.Before(context)
+			if !ok {
 				return
 			}
 		}
-
 		clearURL := path2.Clean(strings.Trim(req.URL.Path, "/"))
-
 		//if zero server empty
 		if 0 == len(clearURL) {
 			http.ServeFile(res, req, this.deploy.resource.index)
 			return
 		}
-
 		admit := 0
 		theDir := ""
-		for _, dir := range this.deploy.resource.dirs {
+		for _, dir := range this.deploy.resource.staticDirs {
 			dir = path2.Clean(dir)
 			if strings.HasPrefix(clearURL, dir) {
 				theDir = dir

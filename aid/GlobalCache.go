@@ -10,6 +10,7 @@
 package aid
 
 import (
+	"strings"
 	"sync"
 )
 
@@ -21,7 +22,7 @@ type globalCached struct {
 var instance *globalCached
 var once sync.Once
 
-func GetInstance() *globalCached {
+func GetGlobalCacheInstance() *globalCached {
 	if nil != instance {
 		return instance
 	}
@@ -53,9 +54,24 @@ func (this *globalCached) Delete(key interface{}) {
 	if nil == this.cache {
 		return
 	}
-	defer this.mu.Lock()
+	defer this.mu.Unlock()
 	this.mu.Lock()
 	delete(this.cache, key)
+}
+
+func (this *globalCached) DeleteStringKeyByPrefix(key string) {
+	if nil == this.cache {
+		return
+	}
+	defer this.mu.Unlock()
+	this.mu.Lock()
+	for k, _ := range this.cache {
+		ckey, cok := k.(string)
+		if !cok || !strings.HasPrefix(ckey, key) {
+			continue
+		}
+		delete(this.cache, k)
+	}
 }
 
 func (this *globalCached) IsExist(key interface{}) bool {
