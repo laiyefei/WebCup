@@ -17,7 +17,9 @@ import (
 	path2 "path"
 	"reflect"
 	"strings"
+	"time"
 	"web-cup/lib/session"
+	"web-cup/lib/session/store"
 )
 
 type allocate struct {
@@ -26,7 +28,6 @@ type allocate struct {
 	dress        RetDress
 	sessionStore session.SessionStore
 }
-
 type deploy struct {
 	addr     string
 	resource struct {
@@ -51,13 +52,54 @@ func NewCup() *cup {
 			parses       []ArgParse
 			dress        RetDress
 			sessionStore session.SessionStore
-		}{aops: {}, parses: []ArgParse{}, dress: &RetsJson{}, sessionStore:},
+		}{aops: []Aop{&DefaultAop{
+			filter: struct {
+				passURL      []string
+				startTime    time.Time
+				endTime      time.Time
+				detaNanoTime int64
+			}{
+				[]string{
+					"/view/login.html",
+					"/view/login",
+					"/view/res/img/avatar.jpg",
+					"/view/res/img/login/login.jpg",
+					"/view/res/img/bakerstreet-club.ico",
+				},
+				time.Now(),
+				time.Now(),
+				-1,
+			},
+		}}, parses: []ArgParse{}, dress: &RetsJson{}, sessionStore: &store.DefaultSessionStore{}},
+		deploy: struct {
+			addr     string
+			resource struct {
+				index      string;
+				staticDirs []string;
+				viewDir    string;
+				exts       []string
+			}
+		}{addr: "127.0.0.1:8888", resource: struct {
+			index      string
+			staticDirs []string
+			viewDir    string
+			exts       []string
+		}{index: "view/login", staticDirs: []string{
+			"assets",
+		}, viewDir: "view", exts: []string{
+			".html", ".css", ".js", ".md", ".txt",
+			".json", ".jpg", ".png", ".gif", ".map",
+			".woff2", ".woff", ".ttf", ".ico",
+		}}},
 	}
-
 	return newCup
 }
 
 //standard
+func (this *cup) AddAop(aop Aop) *cup {
+	this.allocate.aops = append(this.allocate.aops, aop)
+	return this
+}
 func (this *cup) AddParser(parser ArgParse) *cup {
 	this.allocate.parses = append(this.allocate.parses, parser)
 	return this
@@ -66,7 +108,12 @@ func (this *cup) SetRetDress(dresser RetDress) *cup {
 	this.allocate.dress = dresser
 	return this
 }
+func (this *cup) SetSessionStore(sessionStore session.SessionStore) *cup {
+	this.allocate.sessionStore = sessionStore
+	return this
+}
 
+//biz
 func (this *cup) Register(controller interface{}) *cup {
 	//check
 	if nil == this.mux {
