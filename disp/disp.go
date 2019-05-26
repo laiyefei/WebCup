@@ -9,6 +9,30 @@
  */
 package disp
 
-func init() {
+import "web-cup/cup"
 
+type dis struct {
+	controllers []Controller
+}
+
+
+//controller
+type Controller interface {
+
+}
+
+var theCup = cup.NewCup()
+func NewDis() *dis {
+	return &dis{}
+}
+
+func (this *dis)Run(addr ...string){
+	theCup.Run(addr)
+	return
+}
+
+func (this *dis) RegisterController(controller Controller) *dis {
+	theCup.Filling(controller)
+	this.controllers = append(this.controllers, controller)
+	return this
 }

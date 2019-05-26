@@ -9,10 +9,12 @@
  */
 package main
 
-import "web-cup/cup"
+import (
+	"web-cup/DemoController"
+	"web-cup/disp"
+)
 
 func main() {
-
 	//run this framework here
-	cup.NewCup().Run()
+	disp.NewDis().RegisterController(DemoController.DemoController{}).Run()
 }

@@ -96,7 +96,7 @@ func NewCup() *cup {
 }
 
 //dynamic
-func (this *cup) Run(addr ...string) {
+func (this *cup) Run(addr []string) {
 	defer func() {
 		//final run here
 		if exception := recover(); nil != exception {
@@ -136,7 +136,7 @@ func (this *cup) SetSessionStore(sessionStore session.SessionStore) *cup {
 }
 
 //biz
-func (this *cup) Register(controller interface{}) *cup {
+func (this *cup) Filling(controller interface{}) *cup {
 	//check
 	if nil == this.mux {
 		this.mux = http.NewServeMux()
