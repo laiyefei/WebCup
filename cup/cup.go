@@ -70,7 +70,7 @@ func NewCup() *cup {
 				time.Now(),
 				-1,
 			},
-		}}, parses: []ArgParse{}, dress: &RetsJson{}, sessionStore: &store.DefaultSessionStore{}},
+		}}, parses: []ArgParse{&Args{}, &CtxParse{}, &ArgsRest{}, &ArgsJson{}, &ArgsXML{}}, dress: &RetsJson{}, sessionStore: &store.DefaultSessionStore{}},
 		deploy: struct {
 			addr     string
 			resource struct {
@@ -141,8 +141,8 @@ func (this *cup) Filling(controller interface{}) *cup {
 	if nil == this.mux {
 		this.mux = http.NewServeMux()
 	}
-	_type := reflect.TypeOf(controller).Elem()
-	_value := reflect.ValueOf(controller).Elem()
+	_type := reflect.TypeOf(controller)
+	_value := reflect.ValueOf(controller)
 	theView, err := NewView(this.deploy.resource.viewDir)
 	if nil != err {
 		fmt.Println("NewView Error:", err)

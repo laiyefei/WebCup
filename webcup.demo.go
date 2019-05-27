@@ -16,5 +16,5 @@ import (
 
 func main() {
 	//run this framework here
-	disp.NewDis().RegisterController(DemoController.DemoController{}).Run()
+	disp.NewDis().RegisterController(&DemoController.DemoController{}).Run()
 }

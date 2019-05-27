@@ -41,7 +41,7 @@ type ArgsJson struct {
 
 func (this *ArgsJson) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
 
-	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Name())
+	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Elem().Name())
 	if !success {
 		return
 	}
@@ -61,7 +61,7 @@ type ArgsXML struct {
 
 func (this *ArgsXML) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
 
-	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Name())
+	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Elem().Name())
 	if !success {
 		return
 	}
@@ -88,9 +88,9 @@ func (this *ArgsRest) parseQuery(url string) (data map[string]string) {
 	return
 }
 
-func (this *ArgsRest) parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
+func (this *ArgsRest) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
 
-	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Name())
+	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Elem().Name())
 	if !success {
 		return
 	}
@@ -139,12 +139,9 @@ func (this *ArgsRest) parse(ctx *ctx, p reflect.Type) (v reflect.Value, success 
 type Args struct {
 }
 
-func (this *Args) parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
+func (this *Args) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
 
-	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Name())
-	if !success {
-		return
-	}
+	//isCtx := strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Elem().Name())
 	theNewValue := reflect.New(p).Elem()
 	req := ctx.req
 	get := func(key string) string {
