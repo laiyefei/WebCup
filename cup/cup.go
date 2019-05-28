@@ -108,11 +108,14 @@ func (this *cup) Run(addr []string) {
 	}
 	if 0 < len(addr) {
 		for _, v := range addr {
-			fmt.Println("the web cup server is run =>: " + v)
-			http.ListenAndServe(v, this.mux)
+			go func(v string) {
+				fmt.Println("the web cup server is run =>-> : " + v)
+				http.ListenAndServe(v, this.mux)
+			}(v)
 		}
+		select{}
 	} else {
-		fmt.Println("the web cup server is run =>: " + this.deploy.addr)
+		fmt.Println("the web cup server is run =>-> : " + this.deploy.addr)
 		http.ListenAndServe(this.deploy.addr, this.mux)
 	}
 }
@@ -215,7 +218,7 @@ func (this *cup) Filling(controller interface{}) *cup {
 				}
 			}
 		})
-		fmt.Println("Register =>= " + route)
+		fmt.Println("Register =>-> " + route)
 	}
 	return this
 }
