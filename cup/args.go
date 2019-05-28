@@ -19,14 +19,16 @@ import (
 )
 
 type ArgParse interface {
-	Parse(env *ctx, p reflect.Type) (reflect.Value, bool)
+	Parse(env *Ctx, p reflect.Type) (reflect.Value, bool)
 }
+
+
 
 //default parser
 type CtxParse struct {
 }
 
-func (this *CtxParse) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
+func (this *CtxParse) Parse(ctx *Ctx, p reflect.Type) (v reflect.Value, success bool) {
 	if p != reflect.TypeOf(ctx).Elem() {
 		return
 	}
@@ -39,14 +41,22 @@ func (this *CtxParse) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success 
 type ArgsJson struct {
 }
 
-func (this *ArgsJson) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
+func (this *ArgsJson) Parse(ctx *Ctx, p reflect.Type) (v reflect.Value, success bool) {
 
-	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Elem().Name())
-	if !success {
+	isCtx := p == reflect.TypeOf(ctx).Elem()
+	success = !isCtx
+	if !success{
 		return
 	}
+	pName := p.Name()
+	thisName := reflect.ValueOf(this).Type().Elem().Name()
+	isTypeMe := strings.HasPrefix(pName, thisName) || strings.HasSuffix(pName, thisName)
+	if !isTypeMe{
+		return
+	}
+
 	theNewV := reflect.New(p)
-	decoder := json.NewDecoder(ctx.req.Body)
+	decoder := json.NewDecoder(ctx.Req.Body)
 	if err := decoder.Decode(theNewV.Interface()); nil != err {
 		v = reflect.ValueOf(theNewV.Interface()).Elem()
 		fmt.Println(err)
@@ -59,14 +69,22 @@ func (this *ArgsJson) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success 
 type ArgsXML struct {
 }
 
-func (this *ArgsXML) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
+func (this *ArgsXML) Parse(ctx *Ctx, p reflect.Type) (v reflect.Value, success bool) {
 
-	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Elem().Name())
-	if !success {
+	isCtx := p == reflect.TypeOf(ctx).Elem()
+	success = !isCtx
+	if !success{
 		return
 	}
+	pName := p.Name()
+	thisName := reflect.ValueOf(this).Type().Elem().Name()
+	isTypeMe := strings.HasPrefix(pName, thisName) || strings.HasSuffix(pName, thisName)
+	if !isTypeMe{
+		return
+	}
+
 	theNewV := reflect.New(p)
-	decoder := xml.NewDecoder(ctx.req.Body)
+	decoder := xml.NewDecoder(ctx.Req.Body)
 	if err := decoder.Decode(theNewV.Interface()); nil != err {
 		v = reflect.ValueOf(theNewV.Interface()).Elem()
 		fmt.Println(err)
@@ -88,14 +106,21 @@ func (this *ArgsRest) parseQuery(url string) (data map[string]string) {
 	return
 }
 
-func (this *ArgsRest) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
+func (this *ArgsRest) Parse(ctx *Ctx, p reflect.Type) (v reflect.Value, success bool) {
 
-	success = strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Elem().Name())
-	if !success {
+	isCtx := p == reflect.TypeOf(ctx).Elem()
+	success = !isCtx
+	if !success{
 		return
 	}
-	req := ctx.req
+	pName := p.Name()
+	thisName := reflect.ValueOf(this).Type().Elem().Name()
+	isTypeMe := strings.HasPrefix(pName, thisName) || strings.HasSuffix(pName, thisName)
+	if !isTypeMe{
+		return
+	}
 
+	req := ctx.Req
 	theNewValue := reflect.New(p).Elem()
 	urlQuery := this.parseQuery(req.URL.Path)
 	post := func(key string) string {
@@ -109,7 +134,7 @@ func (this *ArgsRest) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success 
 		return post(key)
 	}
 	for i := 0; i < p.NumField(); i++ {
-		qKey := p.Field(i).Name
+		qKey := strings.ToLower(p.Field(i).Name)
 		qValue := fun(qKey)
 		typeName := p.Field(i).Type.Name()
 		switch typeName {
@@ -133,17 +158,29 @@ func (this *ArgsRest) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success 
 			}
 		}
 	}
+	v = theNewValue
 	return
 }
 
 type Args struct {
 }
 
-func (this *Args) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool) {
+func (this *Args) Parse(ctx *Ctx, p reflect.Type) (v reflect.Value, success bool) {
 
-	//isCtx := strings.HasSuffix(p.Name(), reflect.ValueOf(this).Type().Elem().Name())
+	isCtx := p == reflect.TypeOf(ctx).Elem()
+	success = !isCtx
+	if !success{
+		return
+	}
+	pName := p.Name()
+	thisName := reflect.ValueOf(this).Type().Elem().Name()
+	isTypeMe := strings.HasPrefix(pName, thisName) || strings.HasSuffix(pName, thisName)
+	if !isTypeMe{
+		return
+	}
+
 	theNewValue := reflect.New(p).Elem()
-	req := ctx.req
+	req := ctx.Req
 	get := func(key string) string {
 		return req.URL.Query().Get(key)
 	}
@@ -157,8 +194,9 @@ func (this *Args) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool
 		}
 		return get
 	})()
+
 	for i := 0; i < p.NumField(); i++ {
-		qKey := p.Field(i).Name
+		qKey := strings.ToLower(p.Field(i).Name)
 		qValue := fun(qKey)
 		typeName := p.Field(i).Type.Name()
 		switch typeName {
@@ -182,5 +220,6 @@ func (this *Args) Parse(ctx *ctx, p reflect.Type) (v reflect.Value, success bool
 			}
 		}
 	}
+	v = theNewValue
 	return
 }

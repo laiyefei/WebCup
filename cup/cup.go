@@ -70,7 +70,7 @@ func NewCup() *cup {
 				time.Now(),
 				-1,
 			},
-		}}, parses: []ArgParse{&Args{}, &CtxParse{}, &ArgsRest{}, &ArgsJson{}, &ArgsXML{}}, dress: &RetsJson{}, sessionStore: &store.DefaultSessionStore{}},
+		}}, parses: []ArgParse{&Args{}, &ArgsRest{}, &ArgsJson{}, &ArgsXML{}, &CtxParse{}}, dress: &RetsJson{}, sessionStore: &store.DefaultSessionStore{}},
 		deploy: struct {
 			addr     string
 			resource struct {

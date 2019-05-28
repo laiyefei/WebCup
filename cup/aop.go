@@ -19,9 +19,9 @@ type Boost interface {
 
 type Aop interface {
 	//do before context logic run
-	Before(ctx ctx) bool
+	Before(ctx Ctx) bool
 	//do after context logic run
-	After(ctx ctx) bool
+	After(ctx Ctx) bool
 }
 
 type DefaultAop struct {
@@ -33,7 +33,7 @@ type DefaultAop struct {
 	}
 }
 
-func (this *DefaultAop) Before(context ctx) (ok bool) {
+func (this *DefaultAop) Before(context Ctx) (ok bool) {
 	defer func() {
 		this.filter.endTime = time.Now()
 		this.filter.delNanoTime = this.filter.endTime.UnixNano() - this.filter.startTime.UnixNano()
@@ -51,7 +51,7 @@ func (this *DefaultAop) Before(context ctx) (ok bool) {
 	return
 }
 
-func (this *DefaultAop) After(context ctx) (ok bool) {
+func (this *DefaultAop) After(context Ctx) (ok bool) {
 	defer func() {
 		this.filter.endTime = time.Now()
 		this.filter.delNanoTime = this.filter.endTime.UnixNano() - this.filter.startTime.UnixNano()

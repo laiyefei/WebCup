@@ -14,20 +14,20 @@ import (
 	"net/http"
 )
 
-type ctx struct {
-	res      http.ResponseWriter
-	req     *http.Request
-	session session.Session
+type Ctx struct {
+	Res      http.ResponseWriter
+	Req     *http.Request
+	Session session.Session
 }
 
 func init() {
 
 }
 
-func NewCtx(res http.ResponseWriter, req *http.Request, session session.Session) ctx{
-	return ctx{
-		res : res,
-		req : req,
-		session : session,
+func NewCtx(res http.ResponseWriter, req *http.Request, session session.Session) Ctx{
+	return Ctx{
+		Res : res,
+		Req : req,
+		Session : session,
 	}
 }

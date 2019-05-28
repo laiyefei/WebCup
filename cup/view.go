@@ -96,11 +96,16 @@ func (this *view) GetHtml(justName string) (reader io.Reader, err error) {
 }
 
 func (this *view) GetTemp(fullName string) (temp *template.Template, err error) {
+
+	if nil == this{
+		return nil, errors.New("the view object is nil.")
+	}
 	//check first
 	if 0 == len(fullName) {
 		return
 	}
 	//then do
+	fmt.Println(this)
 	filePath := path.Clean(path.Join(this.deploy.dir, fullName))
 	if tempCache, ok := this.cache[filePath]; ok {
 		temp = tempCache
