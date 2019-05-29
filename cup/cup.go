@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	path2 "path"
 	"reflect"
 	"strings"
@@ -43,6 +44,49 @@ type cup struct {
 	mux      *http.ServeMux
 	deploy   deploy
 }
+
+
+type OSInfoType struct {
+	GOPATH string
+}
+
+type CupInfoType struct {
+	Cup struct{
+		RootPath string
+	}
+	Os OSInfoType
+}
+
+var CupInfo *CupInfoType
+
+func init() {
+
+	CupInfo = new(CupInfoType)
+
+	osInfo := &OSInfoType{
+		GOPATH : os.Getenv("GOPATH"),
+	}
+
+	//check env
+	_type := reflect.TypeOf(*osInfo)
+	_value := reflect.ValueOf(*osInfo)
+	for i:=0; i < _type.NumField(); i++{
+		if "" == strings.Trim(_value.Field(i).String()," "){
+			fmt.Println("sorry, the system variables ["+ _type.Field(i).Name +"] must be set, if you use this framework.")
+			os.Exit(-1)
+		}
+	}
+
+	CupInfo.Os = *osInfo
+	//check exist
+	CupInfo.Cup.RootPath = osInfo.GOPATH + "/src/web-cup"
+	if _, err := os.Stat(CupInfo.Cup.RootPath);os.IsNotExist(err){
+		fmt.Println("sorry, the [/src/web-cup] in gopath is not exist please check and try after.")
+		os.Exit(-1)
+	}
+
+}
+
 
 func NewCup() *cup {
 	newCup := &cup{
@@ -84,7 +128,7 @@ func NewCup() *cup {
 			staticDirs []string
 			viewDir    string
 			exts       []string
-		}{index: "view/login", staticDirs: []string{
+		}{index: "view/login.html", staticDirs: []string{
 			"assets",
 		}, viewDir: "view", exts: []string{
 			".html", ".css", ".js", ".md", ".txt",
@@ -92,6 +136,10 @@ func NewCup() *cup {
 			".woff2", ".woff", ".ttf", ".ico",
 		}}},
 	}
+
+	//init put something
+	newCup.resourcePour()
+
 	return newCup
 }
 
@@ -136,6 +184,17 @@ func (this *cup) SetRetDress(dresser RetDress) *cup {
 func (this *cup) SetSessionStore(sessionStore session.SessionStore) *cup {
 	this.allocate.sessionStore = sessionStore
 	return this
+}
+
+func (this *cup) findPath(initPath string) string{
+	if _, err := os.Stat(initPath); nil == err || os.IsExist(err){
+		return initPath
+	}
+	finalPath := CupInfo.Cup.RootPath + "/"+ initPath
+	if _, err := os.Stat(finalPath); nil == err || os.IsExist(err){
+		return finalPath
+	}
+	return initPath
 }
 
 //biz
@@ -204,6 +263,7 @@ func (this *cup) Filling(controller interface{}) *cup {
 					res.Write([]byte("sorry, the server [" + route + "] is error"))
 					return
 				} else {
+					route = this.findPath(route)
 					if temp, err := theView.GetDefaultTemp(route); nil != err {
 						if jsonAfter, err := this.allocate.dress.Sew(callReturn[0].Interface()); nil == err {
 							res.Write(jsonAfter)
@@ -213,8 +273,11 @@ func (this *cup) Filling(controller interface{}) *cup {
 					}
 				}
 			} else {
+				route = this.findPath(route)
 				if reader, err := theView.GetHtml(route); nil == err {
 					io.Copy(res, reader)
+				}else{
+					res.Write([]byte("sorry, the system can not find the temp for you."))
 				}
 			}
 		})
@@ -222,6 +285,7 @@ func (this *cup) Filling(controller interface{}) *cup {
 	}
 	return this
 }
+
 
 func (this *cup) resourcePour() {
 	this.mux.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
@@ -248,21 +312,21 @@ func (this *cup) resourcePour() {
 		}
 		clearURL := path2.Clean(strings.Trim(req.URL.Path, "/"))
 		//if zero server empty
-		if 0 == len(clearURL) {
-			http.ServeFile(res, req, this.deploy.resource.index)
+		if 0 == len(clearURL) || strings.HasPrefix(clearURL, ".") {
+			http.ServeFile(res, req, this.findPath(this.deploy.resource.index))
 			return
 		}
 		admit := 0
-		theDir := ""
+		thePath := ""
 		for _, dir := range this.deploy.resource.staticDirs {
 			dir = path2.Clean(dir)
 			if strings.HasPrefix(clearURL, dir) {
-				theDir = dir
+				thePath = clearURL
 				admit++
 				break
 			}
 		}
-		if 0 == len(theDir) || admit <= 0 {
+		if 0 == len(thePath) || admit <= 0 {
 			io.WriteString(res, "sorry, not allow query this resource ...")
 			return
 		}
@@ -280,7 +344,9 @@ func (this *cup) resourcePour() {
 		}
 
 		//server file
-		http.ServeFile(res, req, theDir)
+		//http.FileServer(http.Dir(this.findPath(theDir)))
+		//fmt.Println(this.findPath(theDir))
+		http.ServeFile(res, req, this.findPath(thePath))
 	})
 }
 

@@ -9,12 +9,13 @@
  */
 package disp
 
-import "web-cup/cup"
+import (
+	"web-cup/cup"
+)
 
 type dis struct {
 	controllers []Controller
 }
-
 
 //controller
 type Controller interface {
