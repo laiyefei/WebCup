@@ -105,7 +105,6 @@ func (this *view) GetTemp(fullName string) (temp *template.Template, err error) 
 		return
 	}
 	//then do
-	fmt.Println(this)
 	filePath := path.Clean(path.Join(this.deploy.dir, fullName))
 	if tempCache, ok := this.cache[filePath]; ok {
 		temp = tempCache

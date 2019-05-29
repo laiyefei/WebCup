@@ -16,5 +16,7 @@ import (
 
 func main() {
 	//run this framework here
-	disp.NewDis().RegisterController(&DemoController.DemoController{}).Run("127.0.0.1:8889","127.0.0.1:8884","127.0.0.1:8885")
+	disp.NewDis().
+		RegisterController(&DemoController.DemoController{}).
+		Run()
 }
