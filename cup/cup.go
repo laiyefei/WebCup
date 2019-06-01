@@ -19,6 +19,7 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"web-cup/controller"
 	"web-cup/lib/session"
 	"web-cup/lib/session/store"
 )
@@ -128,7 +129,7 @@ func NewCup() *cup {
 			staticDirs []string
 			viewDir    string
 			exts       []string
-		}{index: "view/login.html", staticDirs: []string{
+		}{index: "view/biz/login/index.html", staticDirs: []string{
 			"assets",
 		}, viewDir: "view", exts: []string{
 			".html", ".css", ".js", ".md", ".txt",
@@ -139,6 +140,7 @@ func NewCup() *cup {
 
 	//init put something
 	newCup.resourcePour()
+	newCup.Filling(&controller.System{})
 
 	return newCup
 }

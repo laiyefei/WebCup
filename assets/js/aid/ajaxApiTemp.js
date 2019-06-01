@@ -20,7 +20,6 @@
                 if ("string" == typeof data) {
                     data = eval("(" + data + ")");
                 }
-
                 if (!data["ok"]) {
                     if (param["successNOOK"] != undefined && "function" == typeof param["successNOOK"]) {
                         return param["successNOOK"](data);
@@ -62,7 +61,7 @@
     };
 
     ajaxApi({
-        url: "/system/getApiSign",
+        url: "/system/getapisign",
         noObjectResult: true,
         async: false,
         successOKResult: function (data) {
