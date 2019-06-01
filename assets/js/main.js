@@ -64,6 +64,9 @@
     //after dom loaded.
     seajs.use(['sea-css', 'sea-text', 'jq'], function () {
         $(function () {
+            if(!window["bizPath"] || 0 == window["bizPath"].length){
+                window["bizPath"] = "biz/login/index";
+            }
             var bizScript = '{dir}' + window["bizPath"];
             seajs.use(['{dir}com', '{dir}aid/ajaxApiTemp'], function () {
                 seajs.use(bizScript);
