@@ -1,30 +1,25 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
+<!DOCTYPE html>
+<html lang="en" class="no-js">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8">
     <title>web-cup 登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
     <script type="text/javascript" src="/assets/js/web-cup.js" ></script>
 </head>
 <body>
-<div class="main">
-    <div class="center">
-        <form action="" id="formOne" method="post" onsubmit="return submitB()">
-            <i class="fa fa-user Cone"> | </i>
-            <input type="text" name="uer" id="user" placeholder="用户名" onblur="checkUser()"/>
-            <span id="user_pass"></span>
-            <br/>
-            <i class="fa fa-key Cone"> | </i>
-            <input type="password" name="pwd" id="pwd" placeholder="密码" onblur="checkUser1()"/>
-            <span id="pwd_pass"></span>
-            <br/>
-            <i class="fa fa-folder-open Cone"> | </i>
-            <input type="text" name="surePwd" id="surePwd" placeholder="验证码" onblur="checkUser2()"/>
-            <span id="surePwd_pass"></span><br/>
-            <input type="submit" value="登录" id="submit" name="submit">
-            <br/>
-        </form>
-    </div>
+<div class="page-container">
+    <h1>web-cup 登录</h1>
+    <form action="" method="post">
+        <input type="text" name="username" class="username" placeholder="请输入您的用户名！">
+        <input type="password" name="password" class="password" placeholder="请输入您的用户密码！">
+        <input type="Captcha" class="Captcha" name="Captcha" placeholder="请输入验证码！">
+        <button type="submit" class="submit_button">登录</button>
+        <div class="error"><span>+</span></div>
+    </form>
 </div>
 </body>
 </html>
+

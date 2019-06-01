@@ -19,7 +19,7 @@ type ArgsParseParam struct {
 
 func (this *System) BizLoginIndex(param ArgsParseParam) {
 
-	
+
 }
 
 func (this *System) SystemGetapisign(param ArgsParseParam) interface{} {
