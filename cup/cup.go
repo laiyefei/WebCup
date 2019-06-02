@@ -199,6 +199,14 @@ func (this *cup) findPath(initPath string) string{
 	return initPath
 }
 
+func (this *cup) DefaultFace(index string){
+	if len(index) <= 0{
+		fmt.Println("error: can not set the index show.")
+		return
+	}
+	this.deploy.resource.index = index
+}
+
 //biz
 func (this *cup) Filling(controller interface{}) *cup {
 	//check

@@ -37,3 +37,7 @@ func (this *dis) RegisterController(controller Controller) *dis {
 	this.controllers = append(this.controllers, controller)
 	return this
 }
+
+func (this *dis) SetIndex(index string) {
+	theCup.DefaultFace(index)
+}
